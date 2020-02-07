@@ -1,0 +1,36 @@
+apply plugin: 'java-library'
+
+sourceSets {
+    main {
+        java {
+            exclude 'src/no_android/java'
+            srcDirs = [
+                    'src/main/java',
+            ]
+        }
+    }
+
+    test {
+        java {
+            srcDirs = [
+                    'src/test/gen',
+                    'src/test/java'
+            ]
+        }
+    }
+}
+
+ext {
+    targetPlatform = 'java'
+}
+
+dependencies {
+    compile project(':serialize')
+
+    testImplementation project(':test-base')
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs += ["-parameters"]
+    options.encoding = 'UTF-8'
+}
