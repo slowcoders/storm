@@ -26,8 +26,6 @@ ext {
 
 dependencies {
     compile project(':serialize')
-
-    testImplementation project(':test-base')
 }
 
 tasks.withType(JavaCompile) {

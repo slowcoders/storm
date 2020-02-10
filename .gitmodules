@@ -1,0 +1,9 @@
+[submodule "serialize"]
+	path = serialize
+	url = https://github.com/slowcoders/serialize.git
+[submodule "mpbase"]
+	path = mpbase
+	url = https://github.com/slowcoders/mpbase.git
+[submodule "storm-android-sample"]
+	path = storm-android-sample
+	url = https://github.com/slowcoders/storm-sample.git

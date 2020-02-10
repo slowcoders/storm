@@ -1,9 +1,0 @@
-include ':serialize', ':sc-base'
-
-
-project(':serialize').projectDir = new File('../serialize')
-project(':sc-base').projectDir = new File('../sc-base')
-
-
-include 'test-base'
-project(':test-base').projectDir = new File('../test-base')
