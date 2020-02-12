@@ -105,6 +105,33 @@ public class StormSample {
         IxPost.Snapshot snapshot = entities.get(0);
     }
 
+    public void observableCachedEntities2() {
+
+        ObservableCachedEntities.SnapshotList<IxPost.Snapshot> entities = new ObservableCachedEntities.SnapshotList<>();
+
+        String str = "WHERE _subject LIKE '%post%'";
+        StormQuery query = tPost.createQuery(str, null);
+        StormFilter filter = new StormFilter(query);
+
+        entities.bindFilter(filter.orderBy(
+                Post_ORM.CreatedTime.createSortableColumn(tPost, false)
+        ));
+        entities.addAsyncObserver(new ObservableCachedEntities.Observer() {
+            @Override
+            public void onDataChanged(ChangeType type, int index, int movedIndex, EntityReference entityReference) {
+
+            }
+
+            @Override
+            public void onEntireChanged() {
+
+            }
+        });
+
+        IxPost.Snapshot snapshot = entities.get(0);
+    }
+
+
     public void makeAsyncEntities() {
 
         ObservableCachedEntities.ReferenceList<IxPost> entities = tPost.makeAsyncEntities();

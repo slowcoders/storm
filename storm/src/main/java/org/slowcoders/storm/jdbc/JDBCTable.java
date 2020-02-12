@@ -717,7 +717,6 @@ extends StormTable<SNAPSHOT, REF, EDITOR> {
 			}
 		};
 
-//		@msg.Jonghoon.To_Daehoon("isolatedTransaction -> localTransaction 으로 변경")
 		dbStorage.executeInLocalTransaction(op, null);
 		return;
 	}

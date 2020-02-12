@@ -63,9 +63,9 @@ public class QueryTest extends ORMTestBase {
 	 *  QueryParser test
 	 *
 	 *  we inserted invalid custom query
-	 *  in {@link test.storm.deprecated.invalidORM.TestEntity_withInvalidSubQuery}
+	 *  in {@link test.storm.ormtest.invalidORM.TestEntity_withInvalidSubQuery}
 	 *  so error message has to be returned
-	 *  for {@link test.storm.deprecated.schema.GenTestORM#generateDatabase(boolean)}
+	 *  for {@link test.storm.ormtest.schema.GenTestORM2#generateDatabase(boolean)}
 	 */
 	@Test
 	public void testQueryBuilder() throws Exception {
@@ -158,7 +158,7 @@ public class QueryTest extends ORMTestBase {
 								"ELSE 10 END"),
 				Post_ORM.Subject.createSortableColumn(tPost, false)
 		};
-
+        
 		ImmutableList<IxPost.Snapshot> snapshots = tPost.orderBy(sortBy).loadEntities();
 		String[] assertValues = new String[] { postSubject4, postSubject2, postSubject1, postSubject3 };
 		assertEquals(snapshots.size(), assertValues.length);

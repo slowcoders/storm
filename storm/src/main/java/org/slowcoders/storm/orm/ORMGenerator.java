@@ -395,7 +395,6 @@ public abstract class ORMGenerator {
 		out.write('\n');
 		
 		out.write("import " + schemaPackage + ".*;\n");
-		//out.write("import org.ninefolders.storm.*;\n");
 		if (pack == stormPack) {
 			out.write("import " + modelPack.genPackage + ".*;\n");
 		}

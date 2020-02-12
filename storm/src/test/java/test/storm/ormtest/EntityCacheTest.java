@@ -368,32 +368,4 @@ public class EntityCacheTest extends ORMTestBase {
 		TestDatabase.clearAllCache();
 
 	}
-
-//	/*
-//	 * Immutable value 자동 로딩.
-//	 */
-//	@Deprecated
-//	@Test
-//	public void testAutoLoadImmutable() throws Exception {
-//		IxOrder refOrder = getFirstOrder();
-//		IxDelivery refDeleivery = refOrder.getDelivery();
-//		IxComment refComment = refDeleivery.getComment();
-//		assertNotNull(refComment);
-//	}
-
-
-	// 하위 Entity 변경 시, 상위 entity cache 도 자동 변경되어야 한다.
-//	@Deprecated("중복된 테스트")
-//	@Test
-//	public void testHigherEntityCacheChangeOnUpdatingLowerEntity() throws Exception {
-//		IxOrder orderRef = getFirstOrder();
-//		IxOrder.Snapshot oldSnapshot = orderRef.loadSnapshot();
-//		Order_Editor editOrder = oldSnapshot.editEntity();
-//
-//		Delivery_Editor delivery_edit = editOrder.editDelivery();
-//		delivery_edit.setAddress("Rewrited");
-//		editOrder.save();
-//
-//		assertTrue(orderRef.tryLoadSnapshot() != oldSnapshot);
-//	}
 }

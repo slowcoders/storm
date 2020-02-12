@@ -70,7 +70,7 @@ public class MigrationTest {
         JDBCMigration m = new JDBCMigration(migrationVersion) {
             @Override
             protected void migrate(JDBCDatabase db) throws SQLException {
-                String sql = "UPDATE tUser_rw SET _name = 'Jonghoon'";
+                String sql = "UPDATE tUser_rw SET _name = 'Coder'";
                 Connection conn = db.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql);
                 stmt.executeUpdate();
@@ -80,7 +80,7 @@ public class MigrationTest {
         TestDatabase.TestUtil.initWithMigration(migrationVersion, m);
 
         ImmutableList<IxUser.Snapshot> users = _TableBase.tUser.loadEntities();
-        users.forEach(user -> Assert.assertEquals("Jonghoon", user.getName()));
+        users.forEach(user -> Assert.assertEquals("Coder", user.getName()));
     }
 
     /**

@@ -1794,7 +1794,6 @@ final class ModelGen {
 
 
 		if (this.modelName != null) {
-//				@msg.Jonghoon.To_Daehoon("public 함수로 변경")
 			out.println("public void _set(#BASE_FORM# data) {");
 			if (this.superORM != null) {
 				out.println("super._set(data);\n");

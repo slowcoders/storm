@@ -17,7 +17,7 @@ import java.sql.Statement;
 public class GhostReferenceTest extends ORMTestBase {
 
     private static final String postTitle = "Merry Christmas";
-    private static final String userEmail = "Nine Folders";
+    private static final String userEmail = "slowcoders@ggg.com";
 
     @Before
     public void setup() throws SQLException {
@@ -32,8 +32,8 @@ public class GhostReferenceTest extends ORMTestBase {
      */
     @Test
     public void testLoadGhostSnapshot() throws SQLException {
-        IxUser.Editor editor = _TableBase.tUser.edit_withEmailAddress("jonghoon@9folders.com");
-        editor.setName("Jonghoon");
+        IxUser.Editor editor = _TableBase.tUser.edit_withEmailAddress("coder@slowcoders.com");
+        editor.setName("coder");
         IxUser ref = editor.save();
 
         IxUser.Snapshot origin = ref.loadSnapshot();
@@ -55,11 +55,11 @@ public class GhostReferenceTest extends ORMTestBase {
      */
     @Test
     public void testGhostNotVisibleInSelect() throws SQLException {
-        IxUser.Editor editor = _TableBase.tUser.edit_withEmailAddress("jonghoon@9folders.com");
+        IxUser.Editor editor = _TableBase.tUser.edit_withEmailAddress("coder@slowcoders.com");
         IxUser.Snapshot ghost = editor.save().loadSnapshot();
         ghost.getEntityReference().deleteEntity();
 
-        IxUser result = _TableBase.tUser.findByEmailAddress("jonghoon@9folders.com");
+        IxUser result = _TableBase.tUser.findByEmailAddress("coder@slowcoders.com");
         Assert.assertNull(result);
     }
 
@@ -71,15 +71,15 @@ public class GhostReferenceTest extends ORMTestBase {
      */
     @Test
     public void testCreateDuplicateUnique() throws SQLException {
-        IxUser.Editor editor = _TableBase.tUser.edit_withEmailAddress("jonghoon@9folders.com");
-        editor.setName("Jonghoon");
+        IxUser.Editor editor = _TableBase.tUser.edit_withEmailAddress("coder@slowcoders.com");
+        editor.setName("coder");
         IxUser ref = editor.save();
 
         ref.deleteEntity();
 
         IxUser.Snapshot ghost = ref.loadSnapshot();
 
-        editor = _TableBase.tUser.edit_withEmailAddress("jonghoon@9folders.com");
+        editor = _TableBase.tUser.edit_withEmailAddress("coder@slowcoders.com");
 
         IxUser.Snapshot created = editor.save().loadSnapshot();
 
@@ -132,38 +132,6 @@ public class GhostReferenceTest extends ORMTestBase {
         user.deleteEntity();
 
         Assert.assertTrue(photo.isDeleted());
-    }
-
-    /**
-     *  ghost entities have to be deleted
-     *  when their references are garbage collected
-     */
-    @Test
-    public void testClearGhostCache() throws SQLException {
-        {
-            IxUser.Editor editor = _TableBase.tUser.edit_withEmailAddress("jonghoon@9folders.com");
-            IxUser ref = editor.save();
-            ref.deleteEntity();
-        }
-
-        System.gc();
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw Debug.wtf(e);
-        }
-
-        Connection conn = _TableBase.tUser.getDatabase().getConnection();
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM tUser_rw WHERE rowid < 0");
-
-        Assert.assertFalse(rs.next());
-    }
-
-    private IxPost getTestPost() {
-        IxPost post = getPostBySubject(postTitle);
-        return post;
     }
 
 }
