@@ -23,6 +23,7 @@ Storm 소스를 생성하기 위해선 우선 ORM 모델을 정의해주어야 �
 ORM 정의와 별도로 db 이름, 마이그레이션 등의 부가 정보들을 나타내는 클래스를 하나 더 생성하여야 하며 이 클래스는 ORM 정의와 같은 
 패키지 내에 위치해야 합니다. 
 
+```java
     public class ORMDatabase extends JDBCDatabase { // JDBC 를 사용하는 database 클래스인 JDBCDatabase 상속
     
         private static ORMDatabase dbStorage = new ORMDatabase();
@@ -64,6 +65,8 @@ ORM 정의와 별도로 db 이름, 마이그레이션 등의 부가 정보들을
         };
     
     }
+```
+
 
 상속받은 database 클래스는 반드시 static 한 initDatabase() 함수를 정의하고 이 안에서 init() 함수를 통해 초기화를 해주어야 합니다.
 init() 함수는 인자로 각각 마이그레이션에 필요한 dbVersion 과 필요한 Miration 구현체의 배열을 받습니다.
@@ -76,6 +79,7 @@ AbtractEntityResolver 는 부가기능을 위한 클래스입니다. 만약 상�
 ORM 모델과 Database 클래스를 정의하는 작업이 끝났다면 소스를 생성할 수 있습니다.
 소스 생성은 ORMGenerator 를 이용합니다.
 
+```java
     public class GenORM extends ORMGenerator {
     
         @Override
@@ -106,7 +110,8 @@ ORM 모델과 Database 클래스를 정의하는 작업이 끝났다면 소스�
                 throw Debug.wtf(e);
             }
         }
-    }
+```
+
 
 ORMGenerator 를 상속받은 클래스에선 Storm 클래스의 기본 이름과 Storm 모델의 이름을 정의해주어야 합니다.
 각각의 이름들은 추상 함수인 getEntityBaseName, getEntityModelName 에서 정의해주면 됩니다.
@@ -129,6 +134,7 @@ ORMGenerator 를 상속받은 클래스에선 Storm 클래스의 기본 이름�
 PAL.Impl 클래스에는 Storm 을 사용하기 위해서 구현해야 하는 Storage, AsyncSchedule.Executor 가 정의되어 있으며
 각각은 데이터베이스의 경로, 노티피케이션이 전달될 스레드를 정해주는 클래스들입니다.
 
+```java
     public class PAL {
         
         // ...
@@ -143,6 +149,7 @@ PAL.Impl 클래스에는 Storm 을 사용하기 위해서 구현해야 하는 St
             boolean isDebugMode();
         }
     }
+```
     
 Config 클래스는 반드시 'org.slowcoders.pal' 패키지 안에 생성되어야 하며
 클래스는 이름은 'StormConfig' 로 설정해야 합니다.
@@ -176,6 +183,7 @@ table 은 reference 의 캐시를 관리하며 실제 데이터베이스와의 �
 
 ORM 모델은 ORMEntity 클래스를 상속받아 생성합니다.
 
+```java
     @TableDefinition(
             tableName = "tUser" // 테이블 이름
     )
@@ -190,13 +198,16 @@ ORM 모델은 ORMEntity 클래스를 상속받아 생성합니다.
     
         OuterLink Posts = _VolatileJoin("_posts", 0, // Post_ORM 과 join 관계 정의. 실제 칼럼은 아님.
                 Post_ORM.class);
+```
 
 ### @TableDefinition
 
+```java
     @TableDefinition(
             tableName = "tUser"
     				rowIdStart = // number for rowIdStart
     )
+```
 
 TableDefinition 어노테이션 안에서는 다음과 같은 데이터를 정의해 줄 수 있습니다. TableDefinition 이 정의된 ORM 클래스는 모두 테이블로 데이터베이스에 생성됩니다. 상속 구조를 위해 사용하는 ORM 정의의 경우에 실제 테이블로 생성될 필요가 없으므로 TableDefinition 을 정의해주지 않으면 됩니다.
 
@@ -216,24 +227,30 @@ Storm 에서는 ORMEntity 간 상속을 지원하기 때문에 이는 Letter_ORM
 문제는 Letter 와 Note 는 각각의 테이블이기 때문에 Body 에서 참조하는 _item 이 어느 테이블에 속해 있는지 알 수 없다는 겁니다.
 이 때 Letter 와 Note 의 rowIdStart 를 겹치지 않을 만큼 충분한 차이가 나도록 설정하면 rowid 를 보고 어느 테이블에 속한 item 인지 알 수 있습니다.
 
+```java
     @TableDefinition(
             tableName = "tLetter",
             rowIdStart = 1000L * 1000 * 1000 * 1000 * 1000 * 100
     )
     public interface Letter_ORM extends ORMEntity {
     }
+```
 
+```java
     @TableDefinition(
             tableName = "tNote",
             rowIdStart = 1000L * 1000 * 1000 * 1000 * 1000 * 100 * 2
     )
     public interface Note_ORM extends ORMEntity {
     }
+```
+
 
 만약 위와 같이 Letter 는 1000L * 1000 * 1000 * 1000 * 1000 * 100 부터, 
 Note 는 1000L * 1000 * 1000 * 1000 * 1000 * 100 * 2 부터 rowid 가 시작하도록 하면 
 (겹치지 않을 만큼의 큰 숫자라는 전제 하에 가능합니다. 실제 범위를 넘어갈 수 있는 아이템인지 고려해야 합니다.)
 
+```java
     protected StormTable.AbstractEntityResolver createAbstractEntityResolver() {
             return new StormTable.AbstractEntityResolver() {
                 @Override
@@ -250,15 +267,18 @@ Note 는 1000L * 1000 * 1000 * 1000 * 1000 * 100 * 2 부터 rowid 가 시작하�
                 }
             };
         }
+```
 
 Database 클래스에 다음과 같이 EntityResolver 를 정의해 줄 수 있습니다. 
 
 ### @ModelDefinition
 
+```java
     @ModelDefinition(
             uniques = "_post, _user",
             indexes = "_post, _user"
     )
+```
 
 @ModelDefinition 에서는 unique, index 설정을 해줄 수 있습니다.
 
@@ -268,20 +288,24 @@ uniques, indexes 는 모두 String[] 을 정의해 주도록 되어 있습니다
 
 ### ORM 인터페이스
 
+```java
     public interface User_ORM extends ORMEntity { // ORMEntity 혹은 상위 ORM 인터페이스 상속
+```
 
 ORM 모델은 인터페이스로 정의해주며 ORMEntity 를 상속받아야 합니다. 
 혹은 Storm 은 ORM 모델 간 상속을 지원하기 때문에 다른 모델을 상속받을 수도 있습니다.
 
 ### ORM 정의
 
-    		ORMColumn EmailAddress = _Column("_emailAddress", Unique,
-                String.class);
+```java
+    ORMColumn EmailAddress = _Column("_emailAddress", Unique,
+        String.class);
     
-        ORMColumn Name = _Column("_name", 0,
-                String.class);
+    ORMColumn Name = _Column("_name", 0,
+        String.class);
     
-    		//...
+    //...
+```
 
 위는 User_ORM 에 정의된 칼럼들입니다. 기본적으로 테이블에 생성되는 Column 은 ORMColumn 을 타입으로 갖는 객체로 정의해줍니다.
 
@@ -303,29 +327,31 @@ ORMColumn 외에 OuterLink 타입으로 선언되는 것들은 조인 관계를 
 
 ORMFieldFactory 인터페이스에는 _Column(), _List() 등 ORMColumn 객체를 생성하여 반환하는 함수들이 정의되어 있습니다. 정의하고 싶은 칼럼의 유형에 따라 함수를 선택해 사용하면 됩니다. 
 
-    	static ORMColumn _Column(String key, int flags, Class<?> columnType) { //.. }
-    
-    	static ORMAlias _Alias(ORMColumn column, int flags) { //.. }
-    
-    	static ORMColumn _List(String key, int flags, Class<?> columnType) { //.. }
-    
-    	static ORMColumn _Set(String key, int flags, Class<?> itemType) { //.. }
-    
-    	static ORMColumn _EnumSet(String key, int flags, Class<? extends Enum<?>> columnType) { //.. }
-    
-    	static ORMColumn _Map(String key, int flags, Class<?> keyType, Class<?> valueType) { //.. }
-    
-    	static ORMColumn _ForeignKey(String key, int flags, Class<?> columnType) { //.. }
-    
-    	static ORMColumn _MasterForeignKey(int flags, Class<? extends ORMEntity> columnType) { //.. }
-    
-    	static <T> ORMColumn _Generic(String key, int flags, Class<T> type, Class<?> genericParam, IOAdapter adapter) { //.. }
-    
-    	static ORMColumn _Embedded(String key, int flags, Class<? extends ORMEntity> columnType) { //.. }
-    
-    	static OuterLink _SnapshotJoin(String key, int flags, Class<? extends ORMEntity> columnType) { //.. }
-    
-    	static OuterLink _VolatileJoin(String key, int flags, Class<? extends ORMEntity> columnType) { //.. }
+```java
+    static ORMColumn _Column(String key, int flags, Class<?> columnType) { //.. }
+
+    static ORMAlias _Alias(ORMColumn column, int flags) { //.. }
+
+    static ORMColumn _List(String key, int flags, Class<?> columnType) { //.. }
+
+    static ORMColumn _Set(String key, int flags, Class<?> itemType) { //.. }
+
+    static ORMColumn _EnumSet(String key, int flags, Class<? extends Enum<?>> columnType) { //.. }
+
+    static ORMColumn _Map(String key, int flags, Class<?> keyType, Class<?> valueType) { //.. }
+
+    static ORMColumn _ForeignKey(String key, int flags, Class<?> columnType) { //.. }
+
+    static ORMColumn _MasterForeignKey(int flags, Class<? extends ORMEntity> columnType) { //.. }
+
+    static <T> ORMColumn _Generic(String key, int flags, Class<T> type, Class<?> genericParam, IOAdapter adapter) { //.. }
+
+    static ORMColumn _Embedded(String key, int flags, Class<? extends ORMEntity> columnType) { //.. }
+
+    static OuterLink _SnapshotJoin(String key, int flags, Class<? extends ORMEntity> columnType) { //.. }
+
+    static OuterLink _VolatileJoin(String key, int flags, Class<? extends ORMEntity> columnType) { //.. }
+```
 
 **_Column** - 가장 기본적인 칼럼 유형입니다. 
 
@@ -344,17 +370,20 @@ ORMFieldFactory 인터페이스에는 _Column(), _List() 등 ORMColumn 객체를
 
 **_Snapshot/VolatileJoin** - Join 관계를 정의하는 OuterLink 는 실제 테이블에 칼럼으로 생성되지 않으며 관계를 정의하는 용도로 존재합니다. 연결된 하위 테이블에는 반드시 _ForeignKey 칼럼으로 해당 테이블을 정의해주어야 합니다.
 
+```java
     public interface User_ORM extends ORMEntity {
     		
         OuterLink Photo = _SnapshotJoin("_photo", UnsafeMutable | Nullable,
                 Photo_ORM.class);
     
     		//..
+```
 
 위는 User 테이블을 정의한 User_ORM 입니다. 클래스 내부에서 Photo_ORM 과 SnapshotJoin 관계를 갖도록 정의해주었습니다.
 SnapshotJoin 관계에서 하위 아이템의 snapshot 은 항상 상위 아이템의 snapshot 을 로드했을 때의 것이도록 보장됩니다. 예를 들어 user-1 의 snapshot 을 로드하여 작업을 하는 도중
 조인된 photo-1 의 데이터가 변경되었습니다. 이 때 앞서 얻어온 user snapshot 의 getPhoto() 함수는 반드시 업데이트 이전의 photo snapshot 을 반환합니다. user snapshot 을 얻어온 시점은 변경이 되기 전이기 때문입니다.
 
+```java
     public interface User_ORM extends ORMEntity {
     
         OuterLink Description = _VolatileJoin("_description", 0,
@@ -363,17 +392,19 @@ SnapshotJoin 관계에서 하위 아이템의 snapshot 은 항상 상위 아이�
     		//...
     }
     
-    public void function() {
+    public void method() {
     		IxUser.Snapshot user;
     		IxDescription ref = user.getDescription(); // Description 의 reference 를 반환
     		IxDescription.Snapshot snapshot = user.peekDescription(); // Description 의 snapshot 을 반환
     }
+```
     
 
 반면 VolatileJoin 으로 정의된 Description 은 항상 최신의 데이터만 얻어올 수 있습니다. user snapshot 함수 중 getDescription() 을 통해 얻어오는 객체는 description 의 reference 이고 reference 는 항상 최신의 데이터를 갖고 있도록 유지되기 때문입니다. get 함수 외에 peek 이 prefix 로 붙은 함수는 곧바로 해당 하위 아이템의 snapshot 을 반환합니다. 이 때에도 데이터는 항상 reference 를 통해 얻어오기 때문에 최신의 데이터임을 보장합니다. 
 
 Join 관계를 정의할 때 Unique 플래그를 통해 상위 테이블과 하위 테이블의 관계를 정의할 수 있습니다. 
 
+```java
     public interface Description_ORM extends ORMEntity {
     
         ORMColumn User = _ForeignKey("_user", Unique,
@@ -381,13 +412,15 @@ Join 관계를 정의할 때 Unique 플래그를 통해 상위 테이블과 하�
     		//..
     }
     
-    public void function() {
+    public void method() {
     		//..
     		IxDescription descriptionRef = userRef.getDescription();
     }
+```
 
 예를 들어 Description_ORM 의 경우 user 에 대해 Unique 하도록 정의되어 있습니다. 이 경우 일대일 관계가 성립되며 user reference 로 부터 한 개의 description 을 얻어올 수 있습니다.
 
+```java
     public interface Post_ORM extends ORMEntity {
     
         ORMColumn User = _ForeignKey("_user", 0,
@@ -395,10 +428,11 @@ Join 관계를 정의할 때 Unique 플래그를 통해 상위 테이블과 하�
     		//..
     }
     
-    public void function() {
+    public void method() {
     		//..
     		Post_Table.RowSet postRefs = userRef.getPosts();
     }
+```
 
 반면 Post_ORM 의 경우 user 에 대해 Unique 플래그를 지정해주지 않고 있는데 이 경우 일대다 관계가 성립되며 user reference 로 부터 RowSet 을 얻어올 수 있습니다.
 
@@ -408,6 +442,7 @@ ORMColumn 의 타입으로 별도로 정의한 구조체를 넣어주고 싶다�
 
 Storm 에서 제공하는 쿼리 api 들 외에 별도의 쿼리를 정의하고 싶다면 ORM 인터페이스 내부에 Queries 라는 이름으로 내부 인터페이스를 만들어줘야 합니다.
 
+```java
     interface Queries {
         @Where("_subject like {subject}") // where 문으로 붙일 쿼리 정의
         StormRowSet findBySubjectLike(String subject); 
@@ -415,6 +450,7 @@ Storm 에서 제공하는 쿼리 api 들 외에 별도의 쿼리를 정의하고
         @Where("_subject like {subject} GROUP BY _tag HAVING MAX(rowid)")
         StormRowSet findBySubjectLike_groupByTag(String subject);
     }
+```
 
 위는 Post_ORM 에 정의된 Queries 인터페이스 입니다.
 쿼리 함수를 사용하기 위해선 쿼리 문자열을 인자로 넣은 @Where 어노테이션을 정의해야 합니다. 그리고 함수 이름과 리턴 타입을 정해주면 됩니다. 
@@ -429,10 +465,13 @@ Storm 에서 제공하는 쿼리 api 들 외에 별도의 쿼리를 정의하고
 
 쿼리 함수를 정의한 뒤 소스를 생성하면 아래와 같이 테이블 객체를 이용해 쿼리를 할 수 있습니다.
 
+```java
     Post_Table.RowSet posts = _TableBase.tPost.findBySubjectLike("%Post-1");
+```
 
 조인 쿼리를 이용하는 함수는 아래와 같이 정의할 수 있습니다.
 
+```java
     public interface User_ORM extends ORMEntity {
     
     	  //..
@@ -445,11 +484,13 @@ Storm 에서 제공하는 쿼리 api 들 외에 별도의 쿼리를 정의하고
             StormRowSet findByPhotoNameLike(String photoName);
         }
     }
+```
 
 ### Storm 객체 확장
 
 소스를 생성하면 기본적인 Editor, Reference, Snapshot 클래스 외에 소스를 생성할 때 정해줬던 Model prefix 가 앞에 붙은 클래스들이 생성됩니다. 
 
+```java
     public abstract class IxPost extends Post_Reference {
     
     	protected IxPost(long id) { super(id); }
@@ -464,6 +505,7 @@ Storm 에서 제공하는 쿼리 api 들 외에 별도의 쿼리를 정의하고
     		protected Editor(Post_Table table, Post_Snapshot origin) { super(table, origin); }
     	}
     }
+```
 
 위는 Post 아이템의 Model 클래스인 IxPost 입니다. (소스 생성 시 Ix 를 prefix 로 Model 을 생성하도록 했었습니다)
 각각 IxPost 는 Post_Reference 를, IxPost.Snapshot 은 Post_Snapshot 을, IxPost.Editor 는 Post_Editor 를 상속합니다.
@@ -471,6 +513,7 @@ Storm 에서 제공하는 쿼리 api 들 외에 별도의 쿼리를 정의하고
 
 밑은 Model 클래스를 사용하는 예입니다.
 
+```java
     public abstract class IxPost extends Post_Reference {
     
     	protected IxPost(long id) { super(id); }
@@ -493,6 +536,7 @@ Storm 에서 제공하는 쿼리 api 들 외에 별도의 쿼리를 정의하고
     		}
     	}
     }
+```
 
 위의 IxPost 내부의 Editor 클래스에 코드를 추가했습니다. Post 에는 CreatedTime 이라는 이름으로 아이템이 생성된 시간을 기록하는 칼럼이 있습니다. 이 칼럼은 새로 Post 아이템이 생성되면 반드시 값을 넣어줘야 하기 때문에 save() 함수를 부르면 호출되는 onSave_inTR() 을 상속받아 이곳에서 CreatedTime 을 설정해주도록 했습니다. (새로 생성되는 아이템은 originalData 가 null 이기 때문에 위의 조건문으로 새로운 아이템이라는 걸 판별할 수 있습니다)
 
@@ -502,10 +546,12 @@ Storm 에서 제공하는 쿼리 api 들 외에 별도의 쿼리를 정의하고
 
 질의할 아이템의 reference 객체를 갖고 있다면 loadSnapshot 함수를 통해 해당 아이템의 Snapshot 을 얻어올 수 있습니다.
 
+```java
     IxUser userRef;
     IxUser.Snapshot userSnapshot = userRef.loadSnapshot();
     String name = userSnapshot.getName();
     String emailAddress = userSnapshot.getEmailAddress();
+```
 
 reference 의 loadSnapshot() 함수를 호출하면 들고 있는 rowid 로 테이블에 쿼리를 수행하고 결과를 snapshot 객체로 반환합니다. 
 한번 쿼리로 얻어온 snapshot 은 reference 에 캐싱되어 있으며 해당 아이템에 변경 사항이 없는 한 이 캐시는 유지되기 때문에 변경이 일어나기 전까지 loadSnapshot() 은 항상 동일한 객체를 반환합니다. 
@@ -516,6 +562,7 @@ reference 의 loadSnapshot() 함수를 호출하면 들고 있는 rowid 로 테�
 (일대다의 관계에 있다면 StormRowSet 을 갖고 있습니다)
 예를 들어 아래는 Post reference 에서 조인된 아이템들을 얻어 오는 예제입니다.
 
+```java
     IxPost postRef;
     
     IxUser userRef = postRef.getUser(); // 외래키 인 User_ORM 을 가져와
@@ -523,10 +570,12 @@ reference 의 loadSnapshot() 함수를 호출하면 들고 있는 rowid 로 테�
     
     Comment_Table.RowSet commentRowSet = postRef.getComments(); // 하위 아이템인 Comment 에 대한 rowSet 을 얻어와
     ImmutableList<IxComment.Snapshot> commentSnapshots = commentRowSet.loadEntities(); // snapshot 로드
+```
 
 Post_ORM 은 User_ORM 을 외래키로 갖고 있으며 하위에 일대다의 관계로 Comment_ORM 과 연결되어 있습니다.
 Post 에 연결된 아이템들의 reference 혹은 snapshot 을 가져오고 싶다면 간단하게 get__() 함수로 연결된 아이템의 reference 혹은 rowSet 을 얻어와 데이터를 로드하기만 하면 됩니다.
 
+```java
     IxPost.Snapshot postSnapshot;
     
     IxUser userRef = postSnapshot.getUser();
@@ -535,6 +584,7 @@ Post 에 연결된 아이템들의 reference 혹은 snapshot 을 가져오고 �
     
     ImmutableList<IxLike> likeRefs = postSnapshot.getLikes();
     ImmutableList<IxLike.Snapshot> likeSnapshots = postSnapshot.peekLikes();
+```
 
 위는 Snapshot 에서 연결된 아이템들의 데이터를 얻어 오는 예제입니다. 외래키는 reference 에서와 동일하게 reference 로 얻어옵니다. 하위 아이템의 경우 Snapshot/VolatileJoin 둘 중 어느 방식이냐에 따라 차이가 존재합니다.
 
@@ -544,31 +594,39 @@ Post 는 Comment 와 일대다 SnapshotJoin 이며 Like 와는 일대다 Volatil
 
 StormRowSet 인터페이스에는 쿼리를 통해 reference 혹은 snapshot 객체를 얻어올 수 있는 함수들이 정의되어 있습니다. StormRowSet 을 상속받는 가장 대표적인 구현체 중 하나는 테이블 클래스입니다.
 
+```java
     ImmutableList<IxUser> userRefs = _TableBase.tUser.selectEntities(); // reference 리스트 로드
     ImmutableList<IxUser.Snapshot> userSnapshots = _TableBase.tUser.loadEntities(); // snapshot 리스트 로드
+```
 
 위는 StormRowSet 을 상속한 User_Table 객체를 통해 테이블 전체를 검색한 뒤 그에 따른 결과를 리스트로 받아오는 예입니다.
 
 ORM 에 정의한 Queries 내부 함수 중 StormRowSet 을 반환 타입으로 지정한 함수들도 마찬가지로 사용할 수 있습니다.
 
+```java
     User_Table.RowSet rowSet = tUser.findByPhotoNameLike("%photo"); // StormRowSet 을 반환하도록 User_ORM 에 정의.
     
     ImmutableList<IxUser> userRefs = rowSet.selectEntities();
     ImmutableList<IxUser.Snapshot> userSnapshots = rowSet.loadEntities();
+```
 
 ### Unique 쿼리
 
 ORM 을 정의할 때 unique 로 지정한 칼럼이 있다면 테이블 객체에 unique 한 칼럼으로 아이템을 찾는 함수가 추가됩니다.
 
+```java
     public interface User_ORM extends ORMEntity {
     
         ORMColumn EmailAddress = _Column("_emailAddress", Unique,
                 String.class);
+```
 
 위의 User_ORM 에서 emailAddress 는 unique 하도록 플래그를 지정해주었습니다.
 다음과 같이 정의한 후 소스를 생성하면 아래와 같은 함수를 테이블을 통해 이용할 수 있습니다.
 
+```java
     IxUser userRef = tUser.findByEmailAddress("slowcoder@ggg.com");
+```
 
 unique 한 값으로 아이템을 찾기 때문에 반환되는 객체의 타입은 항상 하나의 reference 입니다.
 
@@ -576,6 +634,7 @@ unique 한 값으로 아이템을 찾기 때문에 반환되는 객체의 타입
 
 소스 생성을 통해 만들어진 api 들 외에 동적으로 쿼리를 생성하고 싶다면 다음과 같이 하면 됩니다.
 
+```java
     String sql = "SELECT * FROM tUser WHERE _name IS NULL";
     
     StormQuery query = tUser.createQuery(sql,
@@ -589,6 +648,7 @@ unique 한 값으로 아이템을 찾기 때문에 반환되는 객체의 타입
     
     ImmutableList<EntityReference> userRefs = query.selectEntities();
     ImmutableList<EntitySnapshot> userSnapshots = query.loadEntities();
+```
 
 쿼리 생성은 쿼리를 수행할 테이블 객체의 createQuery() 함수를 통해 할 수 있습니다. 
 createQuery 의 첫 번째 인자는 쿼리 문자열이며 두 번째 인자는 Order By 쿼리문을 위한 SortableColumn 객체입니다. 
@@ -598,8 +658,10 @@ SortableColumn 은 ORM 정의 안에 정적으로 선언한 ORMColumn 객체를 
 
 아이템 삭제는 reference 통해서 할 수 있습니다. 
 
+```java
     IxUser userRef;
     userRef.deleteEntity();
+```
 
 위는 user reference 를 통해 아이템을 삭제하는 예제입니다. 아이템 삭제 시 외래키로 연결된 하위 아이템들이 있다면
 하위 아이템들도 트랜잭션 안에서 모두 삭제됩니다. 
@@ -613,6 +675,7 @@ Storm 의 기본적인 update 및 delete 는 각각 editor, reference 객체를 
 
 이럴 경우에 DB write 를 한 번의 쿼리로 수행할 수 있도록 기능을 제공하고 있습니다.
 
+```java
     ImmutableList<IxPost> postRefs = tPost.selectEntities();
     
     String updatedSubject = "updated subject"; // update 할 제목
@@ -622,6 +685,7 @@ Storm 의 기본적인 update 및 delete 는 각각 editor, reference 객체를 
             new ColumnAndValue(Post_ORM.Subject, updatedSubject, true) 
     };
     tPost.updateEntities(cvs, postRefs);
+```
 
 update 는 ColumnAndValue 라는 클래스를 이용해야 하는데 이 객체는 생성자로 ORMField 와 String 을 인자로 받습니다. 
 (위에서 세번째 boolean 값은 따옴표를 붙여줄지 여부입니다. 문자열 변경의 경우 true)
@@ -635,12 +699,15 @@ update 는 ColumnAndValue 라는 클래스를 이용해야 하는데 이 객체�
 Delete 는 더 간단합니다. 삭제할 reference 들의 리스트를 테이블 객체의 deleteEntities() 함수에 인자로 넣어 함수를 호출하면
 한꺼번에 삭제됩니다.
 
+```java
     tPost.deleteEntities(postRefs);
+```
 
 ### 트랜잭션 처리
 
 트랜잭션 안에서 데이터베이스 질의를 수행하기 위해선 아래와 같이 테이블에서 데이터베이스 객체를 얻어온 다음 executeInLocalTransaction 함수를 호출하면 됩니다. TransactionalOperation 의 execute_inTR 함수 내에서 실행되는 데이터베이스 질의 함수들은 모두 트랜잭션 안에서 처리됩니다.
 
+```java
     tUser.getDatabase().executeInLocalTransaction(new TransactionalOperation<Void>() {
         @Override
         protected Object execute_inTR(Void operationParam, long transactionId) throws SQLException {
@@ -649,6 +716,7 @@ Delete 는 더 간단합니다. 삭제할 reference 들의 리스트를 테이�
             return null;
         }
     }, null);
+```
 
 # 쓰기
 
@@ -656,10 +724,12 @@ Delete 는 더 간단합니다. 삭제할 reference 들의 리스트를 테이�
 
 아이템의 편집은 모두 editor 객체를 사용해 이루어집니다.  아래는 새로운 Post 를 생성하는 예제입니다.
 
+```java
     IxPost.Editor editPost = tPost.newEntity(); // newEntity() 함수를 호출해 editor 룰 얻어와
     editPost.setSubject("New Post"); // 값을 세팅하고
     editPost.setCreatedTime(DateTime.now());
     editPost.save(); // 저장
+```
 
 새로운 아이템을 만드는 경우에는 editor 객체를 테이블에서 얻어 올 수 있습니다. ORM 정의에 따라 생성된 각각의 테이블에는 newEntity() 함수가 존재하며 반환 값은 originalData 가 null 인 (새로운 아이템의 생성이기 때문에) editor 객체입니다. editor 를 얻어온 후에는 set__() 함수를 통해 값을 쓰고 save() 함수를 통해 데이터베이스에 저장할 수 있습니다.
 
@@ -667,11 +737,13 @@ Delete 는 더 간단합니다. 삭제할 reference 들의 리스트를 테이�
 
 아이템 수정을 위한 editor 는 snapshot 에서 얻어올 수 있습니다.
 
+```java
     IxPost.Snapshot postSnapshot = tPost.loadFirst();
     
     IxPost.Editor editPost = postSnapshot.editEntity(); // 기존의 아이템을 수정하는 editor
     editPost.setSubject("Updated Subject");
     editPost.save();
+```
 
 snapshot 의 editEntity() 함수는 현재 snapshot 을 origianlData 로 갖고 있는 editor 를 반환합니다. 이 editor 를 통해
 값을 쓰고 save() 함수를 호출하면 기존에 존재하던 아이템을 업데이트합니다.
@@ -680,12 +752,14 @@ snapshot 의 editEntity() 함수는 현재 snapshot 을 origianlData 로 갖고 
 
 외래키로 연결된 관계에서 상위 아이템의 editor 는 곧바로 하위 아이템을 수정할 수 있습니다. 아래는 Post 에서 Body 를 수정하는 예제입니다.
 
+```java
     IxPost.Editor editPost = tPost.newEntity();
     editPost.setSubject("Example Post");
             
     IxBody.Editor editBody = editPost.editBody();
     editBody.setBody("New Body");
     editPost.save();
+```
 
 Post_ORM 과 Body_ORM 은 Join 관계에 있습니다. Join 관계가 정의되면 상위 아이템의 editor 에는 edit___() 의 이름으로 하위 아이템의 editor 를 얻어올 수 있는 함수가 만들어 집니다. 위의 예제에서는 Post.Editor 에서 editBody() 함수를 통해 Body.Editor 를 얻어와 body 를 편집하고 있습니다. edit__() 함수를 호출하면 만약 하위 아이템이 존재할 경우 새로운 아이템을 생성하는 editor 를 반환하고 그렇지 않을 경우 기존의 아이템을 편집하는 editor 를 반환합니다. 위와 같이 상위 및 하위 아이템의 내용을 편집하고 상위 아이템의 editor 에서 save() 를 호출하면 트랜잭션 안에서 연결된 아이템들의 편집 내용이 전부 한꺼번에 저장됩니다.
 
@@ -693,6 +767,7 @@ Post_ORM 과 Body_ORM 은 Join 관계에 있습니다. Join 관계가 정의되�
 
 일대다 관계에 있는 하위 아이템을 수정하는 방법은 다음과 같습니다.
 
+```java
     IxUser userRef = tUser.selectFirst();
     IxPost.Editor editPost = tPost.newEntity();
     
@@ -706,24 +781,29 @@ Post_ORM 과 Body_ORM 은 Join 관계에 있습니다. Join 관계가 정의되�
     editComments.add(editComment);
     
     editPost.save();
+```
 
 Post 와 Comment 는 일대다 관계로 연결되어 있습니다. Post.Editor 의 editComments() 함수를 호출하면 EditableEntities 객체를 반환하는 데 이 객체는 하위 아이템들의 저장 및 삭제를 관리합니다. 위의 예제에서는 새로운 comment 를 생성하고 EditableEntities.add() 함수를 통해 comment 를 추가하고 있습니다. 마찬가지로 상위 editor 의 save() 함수를 호출하면 트랜잭션 안에서 모든 데이터가 한꺼번에 저장됩니다. 
 
 add 하는 하위 아이템이 기존에 있던 아이템이라면 새로 추가가 되지 않고 기존의 아이템이 수정됩니다.
 
+```java
     EditableEntities<IxComment.UpdateForm, IxComment.Editor> editComments = editPost.editComments();
     
     IxComment.Editor editComment = editComments.edit(0);
     editComment.setText("Updated Comment");
     
     editPost.save();
+```
 
 위는 기존의 하위 아이템을 수정하는 예제입니다. EditableEntities 에서 0 번째 인덱스에 있는 하위 아이템의 editor 를 가져와 text 를 업데이트 하고 마찬가지로 상위 editor 로 저장하고 있습니다. 
 
+```java
     EditableEntities<IxComment.UpdateForm, IxComment.Editor> editComments = editPost.editComments();
     editComments.remove(0);
     
     editPost.save();
+```
 
 하위 아이템을 삭제하는 예제입니다. EditableEntities 에서 0번째 인덱스에 있는 하위 아이템을 삭제하고 있습니다.
 
@@ -731,6 +811,7 @@ add 하는 하위 아이템이 기존에 있던 아이템이라면 새로 추가
 
 위에서 얘기했듯이 연결된 아이템들의 저장은 상위 editor 의 save() 함수가 호출되는 시점에 한꺼번에 전부 이루어집니다. 아래는 좀 더 복잡한 아이템을 수정하는 예제입니다.
 
+```java
     IxUser.Editor editUser = tUser.edit_withEmailAddress(email); // user editor
     editUser.setName("slowcoder");
     
@@ -766,6 +847,8 @@ add 하는 하위 아이템이 기존에 있던 아이템이라면 새로 추가
     editPost.editLikes().add(likeEditor); // post 와 연결된 새 like 추가
     
     editUser.save(); // 최상위 editor 인 user.editor 의 save() 함수 호출로 전부 저장
+```
+
 
 예제에서는 다양하게 얽힌 Join 된 아이템들을 수정하고 있습니다. 핵심은 마지막 User.Editor 의 save() 함수 한 번이면 연결된 데이터가 전부 저장되며 이 과정은 전부 트랜잭션 안에서 실행된다는 점입니다.
 
@@ -773,6 +856,7 @@ add 하는 하위 아이템이 기존에 있던 아이템이라면 새로 추가
 
 ORM 정의 시 unique 하게 정의한 칼럼이 있다면 테이블 객체에 특별한 함수가 추가됩니다.
 
+```java
     @ModelDefinition(
             uniques = {"_post, _user"}
     )
@@ -785,6 +869,7 @@ ORM 정의 시 unique 하게 정의한 칼럼이 있다면 테이블 객체에 �
                 User_ORM.class);
     
     }
+```
 
 예를 들어 Like_ORM (SNS 좋아요 기능) 은 _post 와 _user 에 대해 unique 하도록 설정되어 있습니다. unique 한 칼럼이 존재한다면 테이블 객체에 다음과 같은 함수가 생성됩니다.
 
@@ -804,9 +889,11 @@ Ghost Reference 기능으로 인해 Storm 에서는 각각의 ORM 정의 마다 
 
  멀티스레드 환경에서 현재 수정하고 있는 snapshot 이 다른 스레드에서 변경될 가능성이 있습니다. 이 때 예외 처리를 위한 함수가 EntityEditor 내에 존재하며 Editor 구현체에서 상속받아 사용할 수 있습니다.
 
+```java
     public boolean isConflictUpdate(EntitySnapshot recent) {
         return true;
     }
+```
 
 위는 EntityEditor 내에 정의되어 있는 함수이며 아이템을 수정하고 저장할 때 수정한 snapshot 이 최신 버전인지 확인하고 그렇지 않을 경우 이 함수를 통해 ConflictUpdate 로 처리할 지 판단합니다. 위 함수에서 반환 값을 true 로 하면 비정상적인 상황으로 간주하고 Exception 을 발생시킵니다. 
 
@@ -820,6 +907,7 @@ Storm 객체에 등록하는 observer 의 종류는 2가지가 있습니다. 하
 
 테이블 객체에 observer 를 등록하면 해당 테이블에 변경사항이 있을 때마다 노티피케이션을 받을 수 있습니다.
 
+```java
     StormTable.Observer<IxPost> observer = noti -> {
         ChangeType type = noti.getChangeType(); // Create, Update, Delete, Move
         IxPost ref = noti.getEntityReference(); // 변경된 아이템의 reference
@@ -834,6 +922,7 @@ Storm 객체에 등록하는 observer 의 종류는 2가지가 있습니다. 하
     _TableBase.tPost.addAsyncObserver(observer); // observer 등록
     
     _TableBase.tPost.removeObserver(observer); // observer 삭제
+```
 
 위는 Post 테이블에 observer 를 등록하는 코드입니다. 위와 같이 Post 테이블에 observer 를 등록하면 Post 가 생성, 수정, 삭제될 때 노티피케이션을 받을 수 있습니다. 인자로 넘어오는 EntityChangeNotification 은 변경의 종류 (생성, 수정, 삭제), 변경된 아이템의 reference, 그리고 어느 필드가 변경 되었는지에 대한 정보를 갖고 있는 modifyFlag 를 갖고 있습니다. modifyFlag 를 통해 변경된 칼럼을 알고 싶다면 ORM 정의에 정적으로 선언된 칼럼 객체에서 updateBit 를 가져와 비교하면 됩니다.
 
@@ -843,10 +932,12 @@ Storm 객체에 등록하는 observer 의 종류는 2가지가 있습니다. 하
 
 reference 에도 observer 를 등록할 수 있습니다.
 
+```java
     IxPost postRef = tPost.selectFirst();
     postRef.setAsyncObserver((ref, type) -> {
         
     });
+```
 
 위에서처럼 reference 에 observer 를 등록하면 앞으로 이 아이템에 변경사항이 생길 시 노티피케이션을 받을 수 있습니다.
 인자로는 reference 와 changType 을 받습니다.
@@ -855,6 +946,7 @@ reference 에도 observer 를 등록할 수 있습니다.
 
 ObservableCachedEntities 는 정해진 범위 내의 아이템들의 변경사항을 감지하고 자동으로 리스트에 반영하도록 구현이 되어 있습니다. 이 클래스를 사용하면 아이템 변경에 따른 인덱스 변경, 노티피케이션 등을 손쉽게 처리할 수 있습니다.
 
+```java
     ObservableCachedEntities.SnapshotList<IxPost.Snapshot> entities = new ObservableCachedEntities.SnapshotList();
     entities.bindFilter(tPost.orderBy(
             Post_ORM.CreatedTime.createSortableColumn(tPost, false)
@@ -874,6 +966,7 @@ ObservableCachedEntities 는 정해진 범위 내의 아이템들의 변경사�
     });
     
     IxPost.Snapshot snapshot = entities.get(0);
+```
 
 ObservableCachedEntities 의 구현체들은 ObservableCachedEntities 클래스 내부에 ReferenceList, SnapshotList 라는 이름으로 구현되어 있으며 각각은 이름대로 reference 의 리스트, snapshot 의 리스트를 관리합니다.
 
@@ -883,14 +976,16 @@ OrderBy 옵션이 적용된 쿼리에서 index 자동 처리 기능을 이용하
 
 이 외에 StormRowSet 에도 ObservableCachedEntities 를 만들 수 있는 함수가 존재합니다. 아래는 StormRowSet 을 상속한 Post 테이블에서 ObservableCachedEntities 를 생성하는 코드입니다.
 
+```java
     ObservableCachedEntities.ReferenceList<IxPost> entities = tPost.makeAsyncEntities();
+```
     
-
 # DB 마이그레이션
 
 DB 마이그레이션은 데이터베이스 클래스를 초기화 할 때 마이그레이션 객체를 넘겨 수행할 수 있습니다.
 예제에서 ORMDatabase 클래스의 init() 함수에는 최신의 데이터베이스 버전과 JDBCMigration 클래스를 상속한 객체들의 배열을 인자로 넣도록 되어 있습니다. 마이그레이션은 배열을 통해 순차적으로 실행되며 마이그레이션이 완료되면 init() 의 첫 번째 인자로 넣어준 버전으로 사용자의 데이터베이스 버전이 업데이트 됩니다.
 
+```java
     public class ORMDatabase extends JDBCDatabase {
     
         public static void initDatabase() throws Exception {
@@ -906,9 +1001,12 @@ DB 마이그레이션은 데이터베이스 클래스를 초기화 할 때 마�
     
         };
     }
+```
+
 
 아래는 JDBCMigration 을 상속한 클래스 예제입니다. 생성자에서 super 에 넘겨준 숫자는 이 마이그레이션의 버전입니다. 사용자의 데이터베이스 버전이 마이그레이션 버전 보다 낮다면 클래스 내의 migrate() 함수가 호출됩니다.
 
+```java
     public class Migration_V2 extends JDBCMigration {
     
         protected Migration_V2() {
@@ -922,3 +1020,4 @@ DB 마이그레이션은 데이터베이스 클래스를 초기화 할 때 마�
             stmt.executeUpdate();
         }
     }
+```
