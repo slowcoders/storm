@@ -161,6 +161,7 @@ In our example, Body_Reference, Body_Snapshot, Body_Editor, and Body_Table were 
 which extends EntityReference, EntitySnapshot, EntityEditor, and StormTable respectively.
 
 **EntityReference** 
+
 Reference holds a rowid of item and with this rowid it can load and delete item.
 Rowid is always unique and Storm internally caches all reference instances mapping each reference to its rowid.
 Therefore, there can only be one reference instance for each item.
