@@ -1,5 +1,4 @@
 # storm
-Simple Transactional ORM
 
 Storm (Simple Transactional ORM) is an ORM library and this repository consists of three 
 different project mpbase, serialize, and main project Storm. 
