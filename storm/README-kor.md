@@ -13,7 +13,7 @@ Storm 은 ORM 라이브러리입니다. Storm 의 가장 큰 특징은 멀티스
 
 Storm 소스를 생성하기 위해선 우선 ORM 모델을 정의해주어야 합니다.
 
-![orm models](orm-models.png)
+![orm models](tutorial/orm-models.png)
 
 위는 샘플 프로그램을 위한 ORM 정의들이며 이 클래스들은  org.slowcoders.sample.orm.def 패키지에 선언되어 있습니다.
 모델을 정의하는 방법은 "모델" 섹션에서 다루도록 하겠습니다.
@@ -118,9 +118,9 @@ ORMGenerator 를 상속받은 클래스에선 Storm 클래스의 기본 이름�
 
 그리고 ORM 모델들의 디렉토리와 패키지, 그리고 소스가 생성될 디렉토리와 패키지를 정해준 다음 실행을 하면 소스가 생성됩니다.
 
-![storm classes](storm-classes.png)
+![storm classes](tutorial/storm-classes.png)
 
-![model classes](model-classes.png)
+![model classes](tutorial/model-classes.png)
 
 ...
 
@@ -219,7 +219,7 @@ TableDefinition 어노테이션 안에서는 다음과 같은 데이터를 정�
 
 아래는 rowIdStart 를 사용할 수 있는 예제 schema 입니다.
 
-![model inheritance](model-inheritance.png)
+![model inheritance](tutorial/model-inheritance.png)
 
 위에서 Letter_ORM 과 Note_ORM 은 모두 Item_ORM 을 상속받고 있고 Body_ORM 은 Item_ORM 을 외래키로 참조하고 있습니다.
 Storm 에서는 ORMEntity 간 상속을 지원하기 때문에 이는 Letter_ORM 과 Note_ORM 모두 _title 칼럼을 갖고 있고 Body_ORM 이 외래키로 참조하는 _item 또한 Letter 일 수도 Note 일 수도 있다는 말입니다.
