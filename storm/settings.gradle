@@ -1,8 +1,8 @@
 include ':serialize'
-include ':mpbase'
+include ':settings'
 include ':storm-android-sample'
 
 
 project(':serialize').projectDir = new File('../serialize')
-project(':mpbase').projectDir = new File('../mpbase')
+project(':settings').projectDir = new File('../settings')
 project(':storm-android-sample').projectDir = new File('../storm-android-sample')
