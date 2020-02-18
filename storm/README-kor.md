@@ -4,6 +4,66 @@ Storm 은 ORM 라이브러리입니다. Storm 의 가장 큰 특징은 멀티스
 내부적으로 처리해 Storm 을 사용하는 개발자가 이러한 문제들에 대해 신경쓸 필요가 없다는 점입니다. 현재 Storm 은 JDBC 로 sqlite 를 사용하도록
 구현이 되어 있습니다. 업데이트를 통해 다른 데이터베이스를 사용하는 구현체들도 추가할 예정입니다.
 
+Storm 은 쉽고 빠르게 객체를 데이터베이스에 저장합니다. 아래 예제를 확인하세요 :
+```java
+    // ORMEntity 를 확장하여 모델 정의
+    public interface User_ORM extends ORMEntity {
+    
+        ORMColumn EmailAddress = _Column("_emailAddress", Unique, // "_emailAddress" 를 이름으로 하고 String 을 타입으로 갖는
+                String.class);                                    // unique 한 칼럼을 정의합니다.
+    
+        ORMColumn Name = _Column("_name", 0,
+                String.class);
+        
+        OuterLink Description = _VolatileJoin("_description", 0, // 조인 관계를 정의합니다.
+                Description_ORM.class);
+        
+        // ... more columns
+    }
+   
+    // emailAddress 를 사용해 user 의 reference 를 찾아옵니다.
+    IxUser ref = tUser.findByEmailAddress("slowcoder@ggg.com");
+    
+    // reference 로부터 데이터를 로드합니다.
+    IxUser.Snapshot user = ref.loadSnapshot();
+    String email = user.getEmailAddress(); // get 함수를 통해 snapshot 으로부터 데이터를 가져올 수 있습니다.
+    String name = user.getName();
+    
+    // snapshot 으로부터 아이템을 편집할 editor 를 얻어옵니다.
+    IxUser.Editor editUser = user.editEntity();
+    editUser.setEmailAddress("updated@ddd.com"); // 데이터를 편집합니다.
+    editUser.setName("new name");
+    
+    // 조인된 아이템의 editor 를 얻어옵니다.
+    IxDescription.Editor editDescription = editUser.editDescription();
+    editDescription.setText("new text"); // 데이터를 편집합니다.
+    
+    editUser.save(); // save 함수를 호출하면 조인된 아이템을 포함한 모든 변경사항을 데이터베이스에 기록합니다. 
+    
+    // 새로운 아이템을 생성하는 경우 테이블에서 editor 를 얻어옵니다.
+    IxUser.Editor newUser = tUser.newEntity();
+    
+    // 아이템이 변경되었을 때 알림을 받을 수 있습니다.
+    ref.setAsyncObserver((entity, type) -> {
+    
+    });
+    
+    // 테이블 내의 아이템이 변경되었을 때도 알림을 받을 수 있습니다.
+    tUser.addAsyncObserver(noti -> {
+        
+    });
+    
+    // 트랜잭션 안에서 데이터베이스 작업을 수행합니다.
+    tUser.getDatabase().executeInLocalTransaction(new TransactionalOperation<Object>() {
+        @Override
+        protected <T> T execute_inTR(Object operationParam, long transactionId) throws SQLException {
+            return null;
+        }
+    }, null);
+```
+
+Storm 에 대한 구체적인 설명은 튜토리얼을 참고하세요.
+
 # 튜토리얼
 
 이 튜토리얼에서 우리는 간단한 예제를 통해 Storm 의 사용법을 알아봅니다. 
@@ -71,7 +131,7 @@ ORM 정의와 별도로 db 이름, 마이그레이션 등의 부가 정보들을
 상속받은 database 클래스는 반드시 static 한 initDatabase() 함수를 정의하고 이 안에서 init() 함수를 통해 초기화를 해주어야 합니다.
 init() 함수는 인자로 각각 마이그레이션에 필요한 dbVersion 과 필요한 Miration 구현체의 배열을 받습니다.
 
-AbtractEntityResolver 는 부가기능을 위한 클래스입니다. 만약 상속 구조를 통해 ORM 클래스를 정의하는 경우 필드가 어느 테이블에 존재할 지 알 수 없는 경우가 있습니다.
+AbstractEntityResolver 는 부가기능을 위한 클래스입니다. 만약 상속 구조를 통해 ORM 클래스를 정의하는 경우 필드가 어느 테이블에 존재할 지 알 수 없는 경우가 있습니다.
 이 때 rowid 를 이용해 table 을 찾아오도록 할 수 있습니다. 자세한 설명은 **모델** 섹션의 **@TableDefinition** 을 참고하시면 됩니다.
 
 ### 소스 생성
@@ -128,7 +188,7 @@ ORMGenerator 를 상속받은 클래스에선 Storm 클래스의 기본 이름�
 
 우리가 정의한 ORM 모델들에 대한 Storm 클래스들이 생성됐습니다.
 
-### StormConfig
+### PALConfig
 
 마지막으로 해주어야할 작업은 어플리케이션에서 Storm 을 사용하기 위한 Config 파일을 구현하는 겁니다.
 PAL.Impl 클래스에는 Storm 을 사용하기 위해서 구현해야 하는 Storage, AsyncSchedule.Executor 가 정의되어 있으며
@@ -152,9 +212,9 @@ PAL.Impl 클래스에는 Storm 을 사용하기 위해서 구현해야 하는 St
 ```
     
 Config 클래스는 반드시 'org.slowcoders.pal' 패키지 안에 생성되어야 하며
-클래스는 이름은 'StormConfig' 로 설정해야 합니다.
+클래스는 이름은 'PALConfig' 로 설정해야 합니다.
 
-[Configs]("https://github.com/slowcoders/mpbase/tree/master/src/pal) 에 StormConfig 의 템플릿이 만들어져 있습니다.
+[Configs]("https://github.com/slowcoders/mpbase/tree/master/src/pal) 에 PALConfig 의 템플릿이 만들어져 있습니다.
 j2se 폴더에는 pc 버전, android 폴더에는 안드로이드 버전이 있으니 복사한 뒤 어플리케이션에 맞게 수정하시면 됩니다.
 기본 구현에는 노티피케이션을 ui 스레드에서 보내도록 되어 있습니다. 
 

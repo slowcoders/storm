@@ -17,6 +17,39 @@ import static test.storm.ormtest.gen.model.storm._TableBase.*;
 
 public class StormSample {
 
+    public void method() throws SQLException {
+
+        IxUser ref = tUser.findByEmailAddress("slowcoder@ggg.com");
+
+        IxUser.Snapshot user = ref.loadSnapshot();
+        String email = user.getEmailAddress();
+        String name = user.getName();
+
+
+        IxUser.Editor editUser = user.editEntity();
+        editUser.setEmailAddress("updated@ddd.com");
+        editUser.setName("new name");
+        editUser.save();
+
+        ref.setAsyncObserver((entity, type) -> {
+
+        });
+
+        tUser.addAsyncObserver(noti -> {
+            
+        });
+        
+        tUser.getDatabase().executeInLocalTransaction(new TransactionalOperation<Object>() {
+            @Override
+            protected <T> T execute_inTR(Object operationParam, long transactionId) throws SQLException {
+                return null;
+            }
+        }, null);
+
+    }
+
+
+
     public void loadSnapshot() {
 
         IxUser userRef = null;

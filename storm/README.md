@@ -2,8 +2,66 @@
 
 Storm is a ORM library. One of its key features is that it internally deals with concurrency and transaction issues 
 so that developers using Storm do not have to care about those issues in multithreaded environment. 
-For now, Storm is implemented on top of JDBC layer and it uses SQLite but new implementation
+For now, Storm is implemented on top of JDBC and it uses SQLite but new implementation
  with other databases can be provided in later updates.
+ 
+Storm makes it easy to read and write data in database, here is simple example :
+```java
+    // declare model extending ORMEntity
+    public interface User_ORM extends ORMEntity {
+    
+        ORMColumn EmailAddress = _Column("_emailAddress", Unique, // it defines a unique column with name "_emailAddress"
+                String.class);                                    // and its type being String
+    
+        ORMColumn Name = _Column("_name", 0,
+                String.class);
+        
+        OuterLink Description = _VolatileJoin("_description", 0, // defines join relationship
+                Description_ORM.class);
+        
+        // ... more columns
+    }
+   
+    // find reference with emailAddress
+    IxUser ref = tUser.findByEmailAddress("slowcoder@ggg.com");
+    
+    // load data with reference
+    IxUser.Snapshot user = ref.loadSnapshot();
+    String email = user.getEmailAddress(); // get data from snapshot
+    String name = user.getName();
+    
+    // get editor from snapshot
+    IxUser.Editor editUser = user.editEntity();
+    editUser.setEmailAddress("updated@ddd.com"); // set values
+    editUser.setName("new name");
+    
+    // get editor of linked item
+    IxDescription.Editor editDescription = editUser.editDescription();
+    editDescription.setText("new text"); // set values
+    
+    editUser.save(); // this will save all changed data including joined items
+    
+    // or get editor from table to make new item
+    IxUser.Editor newUser = tUser.newEntity();
+    
+    // set observer to get notified when item changes
+    ref.setAsyncObserver((entity, type) -> {
+    
+    });
+    
+    // add observer to get notified when an item in this table changes
+    tUser.addAsyncObserver(noti -> {
+        
+    });
+    
+    // do database operations in a transaction
+    tUser.getDatabase().executeInLocalTransaction(new TransactionalOperation<Object>() {
+        @Override
+        protected <T> T execute_inTR(Object operationParam, long transactionId) throws SQLException {
+            return null;
+        }
+    }, null);
+```
 
 Details on how to use Storm are explained in the tutorial
 
@@ -136,7 +194,7 @@ And finally we can generate sources.
 
 Storm classes have been generated based on orm models we defined. 
 
-### StormConfig
+### PALConfig
 
 Last thing to do is to implement config class.
 In PAL.Impl class, interface Storage and AsyncSchedule.Executor are defined that have to be implemented
@@ -160,7 +218,7 @@ notifications are sent.
     }
 ```
     
-Config class must be created in package 'org.slowcoders.pal' and name of class must be 'StormConfig'
+Config class must be created in package 'org.slowcoders.pal' and name of a class must be 'PALConfig'
 
 There are config templates in [Configs]("https://github.com/slowcoders/mpbase/tree/master/src/pal)
 In j2se folder, there is config for pc and in android folder, there is config for android so we can copy and paste config file 
@@ -229,7 +287,8 @@ ORM model is defined by extending ORMEntity interface
 
 ORM models with @TableDefinition annotation are all created as table in database.
 If there is an orm model whose sole usage is defining inheritance relationship,
-we do not want table of this model to be created, so simply not defining TableDefinition will not make any unnecessary table.
+we do not want table of this model to be created, 
+in this case, simply not defining TableDefinition will not make any unnecessary table.
 
 TableDefinition annotation takes these parameters :
 

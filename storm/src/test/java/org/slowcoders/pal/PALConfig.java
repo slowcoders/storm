@@ -8,7 +8,7 @@ import java.awt.*;
 import java.io.*;
 import java.net.URI;
 
-public class StormConfig implements PAL.Impl {
+public class PALConfig implements PAL.Impl {
 
     @Override
     public Storage getStorage() {
