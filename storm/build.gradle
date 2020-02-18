@@ -32,7 +32,7 @@ ext {
 }
 
 dependencies {
-    compile project(':settings')
+    compile project(':serialize')
 
     // libraries for test
     testCompile fileTree(dir : 'libs', include : '*.jar')
