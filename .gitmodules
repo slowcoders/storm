@@ -1,9 +1,6 @@
 [submodule "storm-android-sample"]
 	path = storm-android-sample
 	url = https://github.com/slowcoders/storm-sample.git
-[submodule "serialize"]
-	path = serialize
-	url = https://github.com/slowcoders/serialize.git
 [submodule "settings"]
 	path = settings
 	url = https://github.com/slowcoders/settings.git
