@@ -10,9 +10,12 @@ public class ForeignKey extends ORMColumn {
 
 	public ForeignKey(String key, int flags, Class<?> type) {
 		/**
-		 * 일단, ForeignKey 변경을 불허한다 -> Join 상태가 깨지는 것은 삭제에 의해서만 발생.
-		 * 추후 ForeignKey 변경을 허용해야 하는 경우, FK가 변경 시 기존 상위 entity에는 삭제, 
-		 * 새로운 상위 Entity에는 추가 Notification을 전달하여 캐시 정보 무결성을 유지해야 한다.
+		 * For now, it is not allowed to change ForeignKey.
+		 * Join relationship can be broken only when item is deleted.
+		 *
+		 * But later, if it should be allowed, when foreign key is changed,
+		 * old master entity needs to clear cached joined item and
+		 * new master entity has to get notified to update its cache
 		 */
 		super(key, flags | ORMFlags.Immutable, type);
 	}

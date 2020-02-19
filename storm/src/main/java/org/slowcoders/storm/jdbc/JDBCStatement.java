@@ -71,7 +71,7 @@ public class JDBCStatement extends StormQuery {
         if (Debug.DEBUG) {
             try {
                 // for Testing;
-                this.prepareStatment(sql);
+                this.prepareStatement(sql);
             } catch (Exception e) {
                 throw Debug.wtf(e);
             }
@@ -353,7 +353,7 @@ public class JDBCStatement extends StormQuery {
 
         ResultSet rs = null;
         try {
-            rs = searchNext(prepareStatment(sql), entity, values);
+            rs = searchNext(prepareStatement(sql), entity, values);
             return rs.next();
         } finally {
             JDBCUtils.close(rs);
@@ -420,7 +420,7 @@ public class JDBCStatement extends StormQuery {
 
     ///////////////////////////////////////////////////////////
 
-    private PreparedStatement prepareStatment(String sql) throws SQLException {
+    private PreparedStatement prepareStatement(String sql) throws SQLException {
         return table.getDatabase().getConnection().prepareStatement(sql);
     }
 
@@ -444,9 +444,8 @@ public class JDBCStatement extends StormQuery {
 
         LocalStatement localStmt = getLocalStatement();
         if (localStmt.stmt == null || localStmt.stmt.isClosed()) {
-            localStmt.stmt = this.prepareStatment(this.query$);
+            localStmt.stmt = this.prepareStatement(this.query$);
         } else if (Debug.DEBUG && localStmt.rs != null) {
-            // TODO 다시 점검.
             Debug.Assert(localStmt.rs.isClosed());
         }
 
@@ -497,7 +496,6 @@ public class JDBCStatement extends StormQuery {
                 sql += "\nWHERE ";
             }
         }
-        // JJ todo : sort 쿼리
         boolean isJoined = this.isJoinedQuery();
 
         StringBuilder sb = new StringBuilder(sql.substring(0, where_p));
@@ -517,8 +515,8 @@ public class JDBCStatement extends StormQuery {
         select_columns.append(idColumn.getColumnName());
         for (SortableColumn order : this.orderBy) {
             /**
-             * 현재 this.orderBy == table.getDefaultOrderBy() 인 상황에서,
-             * rowid 가 중복되는 현상이 있으나, 무시한다.
+             * in case when this.orderby is equal to table.getDefaultOrderBy(),
+             * rowid is added twice but ignore it.
              */
             select_columns.append(", ");
             select_columns.append(order.getColumnName());
@@ -527,7 +525,6 @@ public class JDBCStatement extends StormQuery {
         int from_p = sql.indexOf(" FROM ");
         sb.replace(0, from_p, select_columns.toString());
 
-        // 연관 이슈 : #113787
         int index = this.query$.toLowerCase().indexOf("order by");
         sb.append(" ");
         sb.append(this.query$.substring(index));
@@ -544,7 +541,7 @@ public class JDBCStatement extends StormQuery {
         String sql = null;
         try {
             sql = makeSearchNextSql();
-            findNextStmt = prepareStatment(sql);
+            findNextStmt = prepareStatement(sql);
             localStatement.searchNext = findNextStmt;
         } catch (SQLException sqlException) {
             System.out.println(sql);
@@ -606,8 +603,8 @@ public class JDBCStatement extends StormQuery {
     }
 
     static IOAdapter[] getIOAdapters(ORMField[] DBFields, String sql, QueryMethod.EntityResolver entityResolver) {
-        // query 문과 sort 문은 서로 분리하는 것을 잠정적인 원칙으로 한다.
-        // 단, 필요에 의해 바뀔 수 있다.
+        // we separate sort clause from query string
+        // but it can be changed when needed
         //NPDebug.Assert(sql.toLowerCase().indexOf("order by") < 0);
         //NPDebug.Assert(sql.toLowerCase().indexOf("group by") < 0);
 
@@ -704,7 +701,7 @@ public class JDBCStatement extends StormQuery {
         int from = this.query$.indexOf(" FROM ");
         sb.append(this.query$.substring(from));
 
-        PreparedStatement stmt = this.prepareStatment(sb.toString());
+        PreparedStatement stmt = this.prepareStatement(sb.toString());
         this.setParameters(stmt, searchParams);
 
         ResultSet rs = stmt.executeQuery();

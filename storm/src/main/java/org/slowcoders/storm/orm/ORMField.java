@@ -40,12 +40,12 @@ public abstract class ORMField extends IOField {//, IOConverter<Object> {
 	private static final int TYPE_Entities = 0xD0000;
 
 	/**
-	 * ForeignKey 등 Immutable 컬럼에 대한 Update Bit.
+	 * Update Bit for Immutable column like ForeignKey
 	 */
 	public static final long IMMUTABLE_COLUMN_UPDATE_BIT = 1 << 0;
 
 	/**
-	 * JOIN 된 OuterLink 에 대한 Update Bit.
+	 * Update Bit for Joined OuterLink
 	 */
 	public static final long OUTER_LINK_UPDATE_BIT = 1 << 1;
 	
@@ -426,11 +426,6 @@ public abstract class ORMField extends IOField {//, IOConverter<Object> {
 		return (this.getAccessFlags() & Immutable) != 0;
 	}
 
-
-	/**
-	 * return true: ForeignKey와 OuterLink의 관계가 Reference 관계인 경우.
-	 *
-	 */
 	public final boolean isVolatileData() {
 		if (this.asOuterLink() == null && !this.isForeignKey()) {
 			Debug.trap();
