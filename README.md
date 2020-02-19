@@ -6,3 +6,6 @@ Core sources and details including tutorial and sample of Storm are all in storm
 and serialize contains base code which Storm is implemented on top.
 
 If you want to look into Storm library visit [storm folder](/storm).
+
+Also, there is sample android application which adapted Storm. This provides practical examples
+on how to make use of Storm in a real application.
