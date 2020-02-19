@@ -1,9 +1,17 @@
 apply plugin: 'java-library'
+apply plugin: 'maven-publish'
 
+group = 'org.slowcoders'
+version = '0.7.0'
 
 allprojects {
     repositories {
         jcenter()
+
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/slowcoders/serialize")
+        }
     }
     
 }
@@ -32,7 +40,7 @@ ext {
 }
 
 dependencies {
-    compile project(':serialize')
+    compile 'org.slowcoders:serialize:1.0.0'
 
     // libraries for test
     testCompile fileTree(dir : 'libs', include : '*.jar')
@@ -44,5 +52,23 @@ dependencies {
 tasks.withType(JavaCompile) {
     options.compilerArgs += ["-parameters"]
     options.encoding = 'UTF-8'
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/slowcoders/storm")
+            credentials {
+                username = System.getenv("GITHUB_USERNAME")
+                password = System.getenv("GITHUB_PERSONAL_TOKEN")
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            from(components.java)
+        }
+    }
 }
 

@@ -1,6 +1,3 @@
-include ':serialize'
 include ':storm-android-sample'
 
-
-project(':serialize').projectDir = new File('../serialize')
 project(':storm-android-sample').projectDir = new File('../storm-android-sample')
