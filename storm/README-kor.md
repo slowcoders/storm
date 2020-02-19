@@ -64,6 +64,22 @@ Storm 은 쉽고 빠르게 객체를 데이터베이스에 저장합니다. 아�
 
 Storm 에 대한 구체적인 설명은 튜토리얼을 참고하세요.
 
+### Gradle
+Storm 사용하기 위해선 먼저 gradle 파일에 targetPlatform 을 지정해주어야 합니다.
+자바 어플리케이션에서 사용하는 경우 아래의 코드를 build.gradle 파일에 추가해주세요.
+```groovy
+    ext {
+        targetPlatform = 'java'
+    }
+``` 
+
+안드로이드 어플리케이션일 경우 아래의 코드를 추가하면 됩니다.
+```groovy
+    ext {
+        targetPlatform = 'android'
+    }
+```
+
 # 튜토리얼
 
 이 튜토리얼에서 우리는 간단한 예제를 통해 Storm 의 사용법을 알아봅니다. 

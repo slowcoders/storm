@@ -65,6 +65,22 @@ Storm makes it easy to read and write data in database, here is simple example :
 
 Details on how to use Storm are explained in the tutorial
 
+### Gradle
+To use Storm, in build gradle, targetPlatform has to be declared.
+In a java application, add this to your gradle file
+```groovy
+    ext {
+        targetPlatform = 'java'
+    }
+```
+
+In an android applcation, add this to your gradle file.
+```groovy
+    ext {
+        targetPlatform = 'android'
+    }
+```
+
 # Tutorial
 
 In this tutorial, we will see how to use Storm through simple example.
