@@ -2,6 +2,7 @@ apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 
 group = 'org.slowcoders'
+archivesBaseName = 'storm'
 version = '0.7.0'
 
 allprojects {
