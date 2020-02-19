@@ -1,3 +1,8 @@
+Note) This project includes submodules so use --recursive option to clone full package
+```text
+    git clone --recursive https://github.com/slowcoders/storm.git
+```
+
 # Storm
 
 Storm is a ORM library. One of its key features is that it internally deals with concurrency and transaction issues 

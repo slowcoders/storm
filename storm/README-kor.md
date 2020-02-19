@@ -1,3 +1,8 @@
+Note) 이 프로젝트에는 submodule 이 포함되어 있기 때문에 clone 할 때 --recursive 옵션을 주어야 전부 받을 수 있습니다. 
+```text
+    git clone --recursive https://github.com/slowcoders/storm.git
+```
+
 # Storm 
 
 Storm 은 ORM 라이브러리입니다. Storm 의 가장 큰 특징은 멀티스레드 환경에서 동시성, 트랜잭션과 관계되어 발생할 수 있는 문제들를
