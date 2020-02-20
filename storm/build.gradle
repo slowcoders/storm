@@ -1,20 +1,57 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
+    }
+}
+
 apply plugin: 'java-library'
 apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
 
-group = 'org.slowcoders'
-archivesBaseName = 'storm'
-version = '0.7.0'
+group 'org.slowcoders'
+version '0.7.0'
 
 allprojects {
     repositories {
         jcenter()
+    }
+}
 
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/slowcoders/serialize")
+bintray {
+    user = findProperty('maven.username')
+    key = findProperty('maven.password')
+    publications = ['publication']
+
+    publish = true
+
+    pkg {
+        repo = 'slowcoders'
+        name = 'storm'
+        vcsUrl = 'https://github.com/slowcoders/storm.git'
+        version {
+            name = project.version
         }
     }
-    
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+publishing {
+    publications {
+        publication(MavenPublication) {
+            from components.java
+            groupId 'org.slowcoders'
+            artifactId 'storm'
+            version project.version
+            artifact sourcesJar
+        }
+    }
 }
 
 sourceSets {
@@ -40,8 +77,13 @@ ext {
     targetPlatform = 'java'
 }
 
+
 dependencies {
-    compile 'org.slowcoders:serialize:1.0.0'
+    implementation 'org.slowcoders:serialize:1.0.0'
+
+    if (targetPlatform == 'java') {
+        implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.27.2.1'
+    }
 
     // libraries for test
     testCompile fileTree(dir : 'libs', include : '*.jar')
@@ -53,23 +95,5 @@ dependencies {
 tasks.withType(JavaCompile) {
     options.compilerArgs += ["-parameters"]
     options.encoding = 'UTF-8'
-}
-
-publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/slowcoders/storm")
-            credentials {
-                username = System.getenv("GITHUB_USERNAME")
-                password = System.getenv("GITHUB_PERSONAL_TOKEN")
-            }
-        }
-    }
-    publications {
-        gpr(MavenPublication) {
-            from(components.java)
-        }
-    }
 }
 
