@@ -65,7 +65,7 @@ Storm 은 쉽고 빠르게 객체를 데이터베이스에 저장합니다. 아�
 
 Storm 에 대한 구체적인 설명은 튜토리얼을 참고하세요.
 
-# 준비
+# Dependency
 
 아래의 코드로 Storm 라이브러리를 추가합니다.
 ```groovy
@@ -77,6 +77,12 @@ dependencies {
     implementation 'org.slowcoders:storm-android:0.7.0'
 }
 ```
+
+# 샘플 
+
+Storm 이 어떻게 활용하될 수 있는지 보여주는 샘플 안드로이드 
+어플리케이션을 준비했습니다. [샘플 보기](storm-android/sample)
+
 
 # 튜토리얼
 

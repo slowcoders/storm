@@ -66,7 +66,7 @@ Storm makes it easy to read and write data in database, here is simple example :
 
 Details on how to use Storm are explained in the tutorial
 
-# Prerequisites 
+# Dependency 
 
 To add Storm library, add code below to your 'build.gradle'
 ```groovy
@@ -77,7 +77,10 @@ To add Storm library, add code below to your 'build.gradle'
         implementation 'org.slowcoders:storm-android:0.7.0'
     }
 ```
+# Sample
 
+We prepared android sample application as an example of 
+how Storm can be adapted. [See sample](storm-android/sample)
 
 # Tutorial
 
