@@ -68,7 +68,7 @@ Details on how to use Storm are explained in the tutorial
 
 # Dependency 
 
-Then add Storm library to your application
+Code below will add Storm library to your application
 ```groovy
     dependencies {
         // for java application
