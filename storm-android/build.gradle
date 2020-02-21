@@ -1,0 +1,60 @@
+apply plugin: 'java-library'
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = [
+                    'sqldroid/src/main/java',
+                    '../storm/src/main/java'
+            ]
+        }
+    }
+
+    test {
+        java {
+            srcDirs = [
+                    'src/test/gen',
+                    'src/test/java'
+            ]
+        }
+    }
+}
+
+ext {
+    compileSdk = 26
+
+    Properties properties = new Properties();
+    properties.load(project.file('local.properties').newDataInputStream())
+
+    androidJar = properties.getProperty('sdk.dir') + '/platforms/android-' + compileSdk + '/android.jar'
+}
+
+dependencies {
+    compileOnly files("${androidJar}")
+
+    implementation 'org.slowcoders:serialize:1.0.0'
+
+    implementation group: 'com.google.guava', name: 'guava', version: '25.1-android'
+
+    // libraries for test
+    testCompile fileTree(dir : 'libs', include : '*.jar')
+
+    testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: '1.3'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.23.4'
+}
+
+ext {
+
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs += ["-parameters"]
+    options.encoding = 'UTF-8'
+}
+

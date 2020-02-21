@@ -1,0 +1,64 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
+    }
+}
+
+apply plugin: 'java-library'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+group 'org.slowcoders'
+version '0.7.0'
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+    task sourcesJar(type: Jar) {
+        from sourceSets.main.java.srcDirs
+        classifier = 'sources'
+    }
+}
+
+bintray {
+    user = findProperty('maven.username')
+    key = findProperty('maven.password')
+    publications = ['publicationJava', 'publicationAndroid']
+
+    publish = true
+
+    pkg {
+        repo = 'slowcoders'
+        name = 'storm'
+        vcsUrl = 'https://github.com/slowcoders/storm.git'
+        version {
+            name = project.version
+        }
+    }
+}
+
+
+publishing {
+    publications {
+        publicationJava(MavenPublication) {
+            from project(':storm').components.java
+            groupId 'org.slowcoders'
+            artifactId 'storm'
+            version project.version
+            artifact sourcesJar
+        }
+
+        publicationAndroid(MavenPublication) {
+            from project(':storm-android').components.java
+            groupId 'org.slowcoders'
+            artifactId 'storm-android'
+            version project.version
+            artifact sourcesJar
+        }
+    }
+}
+

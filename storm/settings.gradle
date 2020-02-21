@@ -1,3 +1,0 @@
-include ':storm-android-sample'
-
-project(':storm-android-sample').projectDir = new File('../storm-android-sample')

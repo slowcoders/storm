@@ -4,10 +4,8 @@ import org.slowcoders.io.serialize.*;
 import org.slowcoders.observable.ChangeType;
 import org.slowcoders.util.SoftValueMap;
 import org.slowcoders.util.WeakValueMap;
-import org.slf4j.Logger;
 import org.slowcoders.io.util.NPAsyncScheduler;
 import org.slowcoders.util.Debug;
-import org.slf4j.LoggerFactory;
 import org.slowcoders.observable.AbstractObservable;
 import org.slowcoders.observable.Observable;
 import org.slowcoders.storm.orm.*;
@@ -21,8 +19,6 @@ public abstract class StormTable<SNAPSHOT extends EntitySnapshot,
 							  EDITOR extends EntityEditor>
 		extends StormView<SNAPSHOT, REF, EDITOR, ORMEntity.UpdateForm>
 		implements Observable<StormTable.Observer<REF>>, QueryMethod.EntityResolver {
-
-	private static Logger log = LoggerFactory.getLogger(StormTable.class);
 
 	private ORMColumn[] dbColumns;
 	private ORMField[] ormFields;
