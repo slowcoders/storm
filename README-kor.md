@@ -67,15 +67,7 @@ Storm 에 대한 구체적인 설명은 튜토리얼을 참고하세요.
 
 # Dependency
 
-아래의 코드를 'build.gradle' 에 넣어 Storm 라이브러리를 추가합니다.
-```groovy
-    repositories {
-        maven {
-            url 'https://dl.bintray.com/leejh-77/slowcoders'
-        }
-    }
-```
-
+아래의 코드를 통해 Storm 라이브러리를 추가할 수 있습니다.
 ```groovy
 dependencies {
     // 자바 어플리케이션
@@ -88,9 +80,8 @@ dependencies {
 
 # 샘플 
 
-Storm 이 어떻게 활용하될 수 있는지 보여주는 샘플 안드로이드 
-어플리케이션을 준비했습니다. [샘플 보기](storm-android/sample)
-
+이 프로젝트에는 Storm 이 어떻게 활용될 수 있는지 보여주는 샘플 안드로이드 
+어플리케이션도 포함되어 있습니다. [샘플 보기](storm-android/sample)
 
 # 튜토리얼
 

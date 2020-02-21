@@ -23,6 +23,36 @@ sourceSets {
     }
 }
 
+bintray {
+    user = rootProject.findProperty('maven.username')
+    key = rootProject.findProperty('maven.password')
+    publications = ['publication']
+
+    publish = true
+
+    pkg {
+        repo = 'slowcoders'
+        name = 'storm'
+        vcsUrl = 'https://github.com/slowcoders/storm.git'
+        version {
+            name = rootProject.version.toString()
+        }
+    }
+}
+
+
+publishing {
+    publications {
+        publication(MavenPublication) {
+            from components.java
+            groupId 'org.slowcoders'
+            artifactId 'storm'
+            version rootProject.version.toString()
+            artifact sourcesJar
+        }
+    }
+}
+
 dependencies {
     implementation 'org.slowcoders:serialize:1.0.0'
 

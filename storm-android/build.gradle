@@ -1,9 +1,7 @@
 apply plugin: 'java-library'
 
-allprojects {
-    repositories {
-        jcenter()
-    }
+repositories {
+    jcenter()
 }
 
 sourceSets {
@@ -49,8 +47,35 @@ dependencies {
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.23.4'
 }
 
-ext {
+bintray {
+    user = rootProject.findProperty('maven.username')
+    key = rootProject.findProperty('maven.password')
+    publications = ['publication']
 
+    publish = true
+
+    pkg {
+        repo = 'slowcoders'
+        name = 'storm-android'
+        vcsUrl = 'https://github.com/slowcoders/storm.git'
+        version {
+            name = rootProject.version.toString()
+        }
+    }
+}
+
+publishing {
+    publications {
+        publication(MavenPublication) {
+            from components.java
+            groupId 'org.slowcoders'
+            artifactId 'storm-android'
+            version rootProject.version.toString()
+            artifact sourcesJar
+        }
+
+
+    }
 }
 
 tasks.withType(JavaCompile) {
