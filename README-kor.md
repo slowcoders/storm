@@ -67,13 +67,21 @@ Storm 에 대한 구체적인 설명은 튜토리얼을 참고하세요.
 
 # Dependency
 
-아래의 코드로 Storm 라이브러리를 추가합니다.
+아래의 코드를 'build.gradle' 에 넣어 Storm 라이브러리를 추가합니다.
+```groovy
+    repositories {
+        maven {
+            url 'https://dl.bintray.com/leejh-77/slowcoders'
+        }
+    }
+```
+
 ```groovy
 dependencies {
     // 자바 어플리케이션
     implementation 'org.slowcoders:storm:0.7.0'
     
-    //
+    // 안드로이드 어플리케이션
     implementation 'org.slowcoders:storm-android:0.7.0'
 }
 ```

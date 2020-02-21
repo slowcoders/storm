@@ -70,6 +70,14 @@ Details on how to use Storm are explained in the tutorial
 
 To add Storm library, add code below to your 'build.gradle'
 ```groovy
+    repositories {
+        maven {
+            url 'https://dl.bintray.com/leejh-77/slowcoders'
+        }
+    }
+```
+Then add dependency
+```groovy
     dependencies {
         // for java application
         implementation 'org.slowcoders:storm:0.7.0'
